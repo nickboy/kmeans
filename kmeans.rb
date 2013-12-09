@@ -8,6 +8,7 @@ end
 #initialization
 num_of_clusters = 1
 radius = 0
+centroids = Array.new
 
 
 
@@ -23,12 +24,15 @@ def euclidean_distance(p1,p2)
 	puts Math.sqrt( sum_of_squares )
 end
 
+def find_the_most_distant_point(centroids, points)
+	centroid = centroids[0]
+	points.
 
+end
+#import dataset then convert into array
 data = CSV.read(ARGV[0], :converters => :all)
 
-puts data[2][1].class
+#random select first centroid
+centroids = data[rand(data.length)]
+puts "First centroid: #{centroids}"
 
-puts euclidean_distance(data[2],data[3])
-
-#random select centroid
-puts centroid = data[rand(data.length)]
