@@ -62,7 +62,7 @@ end
 #distribute every points to nearest centroids.
 def clustering(centroids, points, centroid_of_point)
 	points.each_with_index do |point, point_index|
-		min = 10000000000000000
+		min = 10000000000000000.0
 		nearest_index = 0
 		centroids.each_with_index do |centroid, centroid_index|
 			distance = euclidean_distance(point,centroid)
@@ -80,7 +80,17 @@ def clustering(centroids, points, centroid_of_point)
 end
 
 def calculate_radius(centroids)
-	return euclidean_distance(centroids[0],centroids[1])/2
+	sum = 0.0
+	count = 0
+	centroids.each do |centroid1|
+		centroids.each do |centroid2|
+			sum += euclidean_distance(centroid1,centroid2)/2
+			count +=1
+		end
+	end
+	result = sum/2
+	puts "\ndistance of centroids is #{result}"
+	return result
 end
 
 def calculate_distance_between_centroid(points, centroid_of_point, radius)
@@ -90,6 +100,7 @@ def calculate_distance_between_centroid(points, centroid_of_point, radius)
 			return true
 		end
 	end
+	return false
 end
 
 
@@ -112,10 +123,20 @@ radius = calculate_radius(centroids)
 puts "Radius : #{radius}"
 
 #check the distance between its centroids
-find_next_centroid_or_not = calculate_distance_between_centroid(data,centroid_of_point, radius)
+while calculate_distance_between_centroid(data,centroid_of_point, radius) do
+	num_of_clusters += 1
+	radius = calculate_radius(centroids)
+	
+	centroids.push find_the_next_most_distant_point(centroids, data)
+	centroid_of_point =  clustering(centroids, data, centroid_of_point)
+	#puts centroids
+	puts "Radius : #{radius}"
+	puts "\nneed to find next centroid or not : true, number of centroids: #{num_of_clusters}"
+end
 
-puts "need to find next centroid or not #{find_next_centroid_or_not}"
-
+puts "end of kmeans of clustering"
 #if distance between its centroids > R, then add another centroids
-centroids.push find_the_next_most_distant_point(centroids, data)
-puts centroids
+
+
+
+
