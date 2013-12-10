@@ -80,10 +80,17 @@ def clustering(centroids, points, centroid_of_point)
 end
 
 def calculate_radius(centroids)
-	
+	return euclidean_distance(centroids[0],centroids[1])/2
 end
 
-
+def calculate_distance_between_centroid(points, centroid_of_point, radius)
+	points.each_with_index do |point, point_index|
+		distance = euclidean_distance(point, centroid_of_point[point_index])
+		unless radius > distance
+			return true
+		end
+	end
+end
 
 
 #import dataset then convert into array
@@ -100,4 +107,15 @@ puts centroids
 #clustering assign each non-centroid point to a centroid
 centroid_of_point = clustering(centroids, data, centroid_of_point)
 
+#calculate raduis
+radius = calculate_radius(centroids)
+puts "Radius : #{radius}"
 
+#check the distance between its centroids
+find_next_centroid_or_not = calculate_distance_between_centroid(data,centroid_of_point, radius)
+
+puts "need to find next centroid or not #{find_next_centroid_or_not}"
+
+#if distance between its centroids > R, then add another centroids
+centroids.push find_the_next_most_distant_point(centroids, data)
+puts centroids
