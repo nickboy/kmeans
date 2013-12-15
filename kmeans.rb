@@ -139,6 +139,12 @@ puts "\n#{centroids}"
 puts "\n#{centroids.uniq}"
 #if distance between its centroids > R, then add another centroids
 
+points_summary = Hash.new(0)
+centroid_of_point.each { | point | points_summary.store(point, points_summary[point]+1) }
+points_summary.each_with_index do |point, point_index|
+	puts "cluster number : #{point_index} has #{point[1]} points"
+end
 
+#puts "points_location_summary : #{points_summary}"
 
 

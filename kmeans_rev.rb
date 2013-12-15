@@ -105,6 +105,8 @@ def calculate_distance_between_centroid(points, centroid_of_point, radius)
 	return false
 end
 
+def relocate_centroids()
+
 
 #import dataset then convert into array
 data = CSV.read(ARGV[0], :converters => :all)
@@ -137,7 +139,12 @@ end
 puts "end of kmeans of clustering, number of centroids: #{centroids.count}"
 puts "\n#{centroids}"
 puts "\n#{centroids.uniq}"
-#if distance between its centroids > R, then add another centroids
+
+points_summary = Hash.new(0)
+centroid_of_point.each { | point | points_summary.store(point, points_summary[point]+1) }
+puts "points_location_summary : #{points_summary}"
+
+#if distance between its centroids > R, tpoint_summaryen add another centroids
 
 
 
