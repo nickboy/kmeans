@@ -12,8 +12,6 @@ centroids = Array.new
 centroid_of_point = Array.new
 
 
-
-
 def euclidean_distance(p1,p2)
 	#puts "Distance between #{p1} and #{p2}"
 	sum_of_squares = 0
@@ -106,6 +104,7 @@ def calculate_distance_between_centroid(points, centroid_of_point, radius)
 end
 
 
+
 #import dataset then convert into array
 data = CSV.read(ARGV[0], :converters => :all)
 
@@ -123,7 +122,7 @@ centroid_of_point = clustering(centroids, data, centroid_of_point)
 #calculate raduis
 radius = calculate_radius(centroids)
 puts "Radius : #{radius}"
-
+centroids.
 #check the distance between its centroids
 while calculate_distance_between_centroid(data,centroid_of_point, radius) do
 	radius = calculate_radius(centroids)
