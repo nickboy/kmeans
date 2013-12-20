@@ -108,11 +108,12 @@ end
 def relocate_centroids(centroids, points,centroids_points)
 	puts centroids_points.uniq
 	average_distance = 0.0
+	new_centroids = centroids
+
 	centroids.each_with_index do |centroid, index|
 		points_index_belong_to_centroid = centroids_points.each_index.select{|i| centroids_points[i] == centroid}
 		puts "points belong to #{centroid} are #{points_index_belong_to_centroid}"
 		old_centroid = centroid
-		new_centroid = ""
 		new_centroid_id = 0
 		new_centroid_average_distance = 100000000000.0
 		
@@ -127,30 +128,36 @@ def relocate_centroids(centroids, points,centroids_points)
 				sum += euclidean_distance(points[main_point_index],points[point_index])
 			end
 			average = sum / count
-
+			#puts "Mainpoints is #{points[main_point_index]}, average is #{average}"
 			#relocate the centroid if average distance to points is shorter than current centroid
 			if (average)< new_centroid_average_distance
+				
+				#updatethe centroid array
 				new_centroid_id = main_point_index
 				new_centroid_average_distance = average
 
-				puts "Nickboy move centroid #{points[main_point_index]} to #{points[new_centroid_id]}, average is #{average}"
+				new_centroids.map!{ |x| x ==  old_centroid ? points[new_centroid_id] : x }
+				#puts "new centroid list : #{new_centroids}"
+
+				#puts "Nickboy move centroid #{old_centroid} to #{points[new_centroid_id]}, average is #{average}, new centroid list : #{new_centroids}"
+				old_centroid = points[main_point_index]
 			end
 		end
 		
+		
 		#changed points' centroid to new centroid.
 		points_index_belong_to_centroid.each do |point_index|
-			puts "Nickboy original centroids #{centroids}"
+			#puts "Nickboy original centroids #{centroids}"
 			centroids.each_with_index do |element, index|
   				centroids[index] = points[new_centroid_id] if element == centroids_points[point_index] # or x[index].replace("hi") if element == "hello"
 			end
 			centroids_points[point_index] = points[new_centroid_id]
-			puts "Nickboy move #{centroids_points[point_index]} to #{points[new_centroid_id]}"
-			puts "Nickboy #{centroids}"
+			#puts "Nickboy move #{centroids_points[point_index]} to #{points[new_centroid_id]}"
+			#puts "Nickboy #{centroids}"
 		end
-
-
-		
 	end
+
+	return centroids_points, new_centroids
 end
 
 
@@ -190,7 +197,9 @@ points_summary = Hash.new(0)
 centroid_of_point.each { | point | points_summary.store(point, points_summary[point]+1) }
 puts "points_location_summary : #{points_summary}"
 
-relocate_centroids(centroids, data, centroid_of_point)
+puts "old centroids : #{centroids}"
+result = relocate_centroids(centroids, data, centroid_of_point)
+puts "new centroids : #{result[1]}"
 
 #if distance between its centroids > R, tpoint_summaryen add another centroids
 
