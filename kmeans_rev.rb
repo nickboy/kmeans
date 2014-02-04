@@ -1,10 +1,6 @@
 require 'csv'
 
 
-ARGV.each do |a|
-	puts "Argument :#{a}"
-end
-
 #initialization
 num_of_clusters = 1
 radius = 0
@@ -46,20 +42,49 @@ def find_the_next_most_distant_point(centroids, points)
 	max = 0
 	fartest_index = 0
 	centroids.each_with_index do |centroid, index|
-			points.each_with_index do |point,index|
-				unless centroids.include? point
-					distance = euclidean_distance(centroid, points[index])
-					#puts "distance is #{distance}"
-					unless max > distance
-						max = distance
-						fartest_index=index
-					end
+		points.each_with_index do |point,index|
+			unless centroids.include? point
+				distance = euclidean_distance(centroid, points[index])
+
+				unless max > distance
+					max = distance
+					fartest_index=index
 				end
 			end
+		end
 	end
 	#puts "max distance is #{max}, which is #{points[fartest_index]}"
 	return points[fartest_index]
 end
+
+
+# def find_the_next_most_distant_point(centroids, points)
+# 	max = 0
+# 	fartest_index = 0
+# 	distance_between_centroids = Array.new
+
+# 	points.each_with_index do |point,index|
+		
+# 		unless centroids.include? point
+# 			centroids.each_with_index do |centroid, index|
+# 				distance_between_centroids.push euclidean_distance(centroid, point)
+# 			end
+# 			puts point
+# 			puts "distance between centroids: #{distance_between_centroids}"
+# 			puts distance_between_centroids.min
+# 			min_distance_between_centroids = distance_between_centroids.min
+
+# 			if min_distance_between_centroids > max
+# 				fartest_index = index
+# 				max = min_distance_between_centroids
+# 			end
+# 		end
+# 		distance_between_centroids.clear
+# 	end
+
+
+# 	return points[fartest_index]
+# end
 
 #distribute every points to nearest centroids.
 def clustering(centroids, points, centroid_of_point)
@@ -68,7 +93,7 @@ def clustering(centroids, points, centroid_of_point)
 		nearest_index = 0
 		centroids.each_with_index do |centroid, centroid_index|
 			distance = euclidean_distance(point,centroid)
-			puts "centroid index is #{centroid_index}, distance is #{distance}"
+			#puts "centroid index is #{centroid_index}, distance is #{distance}"
 			unless (distance>min) || (point.eql? centroid)
 				min = distance
 				nearest_index = centroid_index
@@ -96,13 +121,18 @@ def calculate_radius(centroids)
 end
 
 def calculate_distance_between_centroid(points, centroid_of_point, radius)
+	count = 0
 	points.each_with_index do |point, point_index|
 		distance = euclidean_distance(point, centroid_of_point[point_index])
 		unless radius > distance
-			return true
+			count +=1
 		end
 	end
-	return false
+	if (count > 10)
+		return true
+	else
+		return false
+	end
 end
 
 def relocate_centroids(centroids, points,centroids_points)
@@ -160,46 +190,89 @@ def relocate_centroids(centroids, points,centroids_points)
 	return centroids_points, new_centroids
 end
 
+def compute_result(data, centroid_list)
+	number_of_data = data.count
+	number_of_wrong = 0
+	number_of_correct = 0
 
-#import dataset then convert into array
-data = CSV.read(ARGV[0], :converters => :all)
+	data.each_with_index do |point, index|
+		# puts "POINT : #{point[4]}"
+		# puts "Centroid : #{centroid_list[index][4]}"
+		if point[4] == centroid_list[index][4]
 
-#random select first centroid
-centroids.push data[rand(data.length)]
-puts "First centroid: #{centroids}"
-
-#push second centroid to the centroid array
-centroids.push find_the_next_most_distant_point(centroids,data)
-puts centroids
-
-#clustering assign each non-centroid point to a centroid
-centroid_of_point = clustering(centroids, data, centroid_of_point)
-
-#calculate raduis
-radius = calculate_radius(centroids)
-puts "Radius : #{radius}"
-
-#check the distance between its centroids
-while calculate_distance_between_centroid(data,centroid_of_point, radius) do
-	radius = calculate_radius(centroids)
-	centroids.push find_the_next_most_distant_point(centroids, data)
-	centroid_of_point =  clustering(centroids, data, centroid_of_point)
-	#puts centroids
-	puts "Radius : #{radius}"
-	puts "\nneed to find next centroid or not : true"
+			number_of_correct +=1
+		else
+			number_of_wrong +=1
+		end
+	end
+	result = number_of_correct.to_f / number_of_data
+	puts "Number of Correct : #{number_of_correct}"
+	puts "Accuracy : #{result}"
 end
 
-puts "end of kmeans of clustering, number of centroids: #{centroids.count}"
-puts "\n#{centroids}"
-puts "\n#{centroids.uniq}"
 
-points_summary = Hash.new(0)
-centroid_of_point.each { | point | points_summary.store(point, points_summary[point]+1) }
-puts "points_location_summary : #{points_summary}"
+if __FILE__ == $0
+	#import dataset then convert into array
+	data = CSV.read(ARGV[0], :converters => :all)
 
-puts "old centroids : #{centroids}"
-result = relocate_centroids(centroids, data, centroid_of_point)
-puts "new centroids : #{result[1]}"
+	#random select first centroid
+	centroids.push data[rand(data.length)]
+	puts "First centroid: #{centroids}"
 
-#if distance between its centroids > R, tpoint_summaryen add another centroids
+	#push second centroid to the centroid array
+	centroids.push find_the_next_most_distant_point(centroids,data)
+	puts centroids
 
+	#clustering assign each non-centroid point to a centroid
+	centroid_of_point = clustering(centroids, data, centroid_of_point)
+
+	#reposition centroid
+	puts "old centroids : #{centroids}"
+	result = relocate_centroids(centroids, data, centroid_of_point)
+	puts "new centroids : #{result[1]}"
+	centroids = result[1]
+	centroid_of_point = result[0]
+
+	#calculate raduis
+	radius = calculate_radius(centroids)
+	puts "Radius : #{radius}"
+
+	#check the distance between its centroids
+	while calculate_distance_between_centroid(data,centroid_of_point, radius) do
+		
+		radius = calculate_radius(centroids)
+		
+
+		centroids.push find_the_next_most_distant_point(centroids, data)
+		centroid_of_point =  clustering(centroids, data, centroid_of_point)
+
+		# puts "old centroids : #{centroids}"
+		# result = relocate_centroids(centroids, data, centroid_of_point)
+		# puts "new centroids : #{result[1]}"
+		# centroids.empty
+		# centroids = result[1]
+		# centroid_of_point = result[0]
+
+
+		#puts centroids
+		puts "Radius : #{radius}"
+		puts "\nneed to find next centroid or not : true"
+	end
+
+
+
+	points_summary = Hash.new(0)
+	centroid_of_point.each { | point | points_summary.store(point, points_summary[point]+1) }
+	puts "points_location_summary : #{points_summary}"
+
+	#centroid_of_point.each { | point | puts "#{point}" }
+
+	puts "end of kmeans of clustering, number of centroids: #{centroids.count}"
+	puts "\n#{centroids}"
+
+	compute_result(data,centroid_of_point)
+
+
+
+	#if distance between its centroids > R, tpoint_summaryen add another centroids
+end

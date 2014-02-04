@@ -59,6 +59,31 @@ def find_the_next_most_distant_point(centroids, points)
 	return points[fartest_index]
 end
 
+# def find_the_next_most_distant_point(centroids, points)
+# 	max = 0
+# 	fartest_index = 0
+
+# 	points.each_with_index do |point,index|
+# 		distance_between_centroids = Array.new
+# 		unless centroids.include? point
+# 			centroids.each_with_index do |centroid, index|
+# 				distance_between_centroids.push euclidean_distance(centroid, points[index])
+# 			end
+# 			min_distance_between_centroids = min(distance_between_centroids)
+
+# 			if min_distance_between_centroids > max
+# 				fartest_index = index
+# 				max = min_distance_between_centroids
+# 			end
+# 		end
+# 	end
+
+
+# 	return points[fartest_index]
+
+	
+# end
+
 #distribute every points to nearest centroids.
 def clustering(centroids, points, centroid_of_point)
 	points.each_with_index do |point, point_index|
@@ -103,6 +128,26 @@ def calculate_distance_between_centroid(points, centroid_of_point, radius)
 	return false
 end
 
+def compute_result(data, centroid_list)
+	number_of_data = data.count
+	number_of_wrong = 0
+	number_of_correct = 0
+
+	data.each_with_index do |point, index|
+		puts "POINT : #{point[4]}"
+		puts "Centroid : #{centroid_list[index][4]}"
+		if point[4] == centroid_list[index][4]
+
+			number_of_correct +=1
+		else
+			number_of_wrong +=1
+		end
+	end
+	result = number_of_correct.to_f / number_of_data
+	puts "Number of Correct : #{number_of_correct}"
+	puts "Accuracy : #{result}"
+end
+
 
 
 #import dataset then convert into array
@@ -122,7 +167,6 @@ centroid_of_point = clustering(centroids, data, centroid_of_point)
 #calculate raduis
 radius = calculate_radius(centroids)
 puts "Radius : #{radius}"
-centroids.
 #check the distance between its centroids
 while calculate_distance_between_centroid(data,centroid_of_point, radius) do
 	radius = calculate_radius(centroids)
@@ -138,11 +182,14 @@ puts "\n#{centroids}"
 puts "\n#{centroids.uniq}"
 #if distance between its centroids > R, then add another centroids
 
-points_summary = Hash.new(0)
-centroid_of_point.each { | point | points_summary.store(point, points_summary[point]+1) }
-points_summary.each_with_index do |point, point_index|
-	puts "cluster number : #{point_index} has #{point[1]} points"
-end
+# points_summary = Hash.new(0)
+# # centroid_of_point.each { | point | points_summary.store(point, points_summary[point]+1) }
+# # points_summary.each_with_index do |point, point_index|
+# # 	puts "cluster number : #{point_index} has #{point[1]} points"
+# # end
+centroid_of_point.each { | point | puts "#{point}" }
+
+compute_result(data,centroid_of_point)
 
 #puts "points_location_summary : #{points_summary}"
 
